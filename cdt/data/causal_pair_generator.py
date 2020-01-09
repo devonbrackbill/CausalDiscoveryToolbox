@@ -52,6 +52,7 @@ class CausalPairGenerator(object):
         noise_coeff (float): Proportion of noise in the mechanisms.
         initial_variable_generator (function): Function used to init variables
             of the graph, defaults to a Gaussian Mixture model.
+        seed (int): set the random seed 
 
     Example:
         >>> from cdt.data import CausalPairGenerator
@@ -61,7 +62,8 @@ class CausalPairGenerator(object):
     """
 
     def __init__(self, causal_mechanism, noise=normal_noise,
-                 noise_coeff=.4, initial_variable_generator=gmm_cause):
+                 noise_coeff=.4, initial_variable_generator=gmm_cause,
+                 seed=None):
         super(CausalPairGenerator, self).__init__()
         self.mechanism = {'linear': LinearMechanism,
                           'polynomial': Polynomial_Mechanism,
@@ -74,6 +76,7 @@ class CausalPairGenerator(object):
         self.noise = noise
         self.noise_coeff = noise_coeff
         self.initial_generator = initial_variable_generator
+        self.seed = seed
 
     def generate(self, npairs, npoints=500, rescale=True, njobs=None):
         """Generate Causal pairs, such that one variable causes the other.
@@ -90,6 +93,9 @@ class CausalPairGenerator(object):
             labels. The data is at the ``SampleID, a (numpy.ndarray) , b (numpy.ndarray))``
             format.
         """
+        if self.seed is not None:
+            np.random.seed(self.seed)
+        
         def generate_pair(npoints, label, rescale):
             root = self.initial_generator(npoints)[:, np.newaxis]
             cause = self.mechanism(1, npoints, self.noise,

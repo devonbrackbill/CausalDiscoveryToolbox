@@ -58,6 +58,7 @@ class AcyclicGraphGenerator(object):
         expected_degree (int): Degree (number of edge per node) expected,
             only used for erdos graph
         dag_type (str): type of graph to generate ('default', 'erdos')
+        seed (int): set the random seed 
 
     Example:
         >>> from cdt.data import AcyclicGraphGenerator
@@ -70,7 +71,7 @@ class AcyclicGraphGenerator(object):
                  noise_coeff=.4,
                  initial_variable_generator=gmm_cause,
                  npoints=500, nodes=20, parents_max=5, expected_degree=3,
-                 dag_type='default'):
+                 dag_type='default', seed=None):
         super(AcyclicGraphGenerator, self).__init__()
         self.mechanism = {'linear': LinearMechanism,
                           'polynomial': Polynomial_Mechanism,
@@ -96,6 +97,7 @@ class AcyclicGraphGenerator(object):
         self.initial_generator = initial_variable_generator
         self.cfunctions = None
         self.g = None
+        self.seed = seed
 
     def init_dag(self, verbose):
         """Redefine the structure of the graph depending on dag_type
@@ -159,6 +161,9 @@ class AcyclicGraphGenerator(object):
             tuple: (pandas.DataFrame, networkx.DiGraph), respectively the
             generated data and graph.
         """
+        if self.seed is not None:
+            np.random.seed(self.seed)
+            
         if self.cfunctions is None:
             self.init_variables()
 
